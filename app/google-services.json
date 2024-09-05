@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "411181280251",
+    "project_id": "blinkit-clone-2e982",
+    "storage_bucket": "blinkit-clone-2e982.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411181280251:android:8c9cf2f2b0170e63c3795e",
+        "android_client_info": {
+          "package_name": "com.example.userblinkitclone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDS9cVS8brLS2n9YAK23JPe_O8Fr83NRvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
