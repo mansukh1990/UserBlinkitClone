@@ -43,8 +43,11 @@ class HomeFragment : Fragment() {
     }
 
     fun onCategoryIconClicked(category: Category){
-
+        val bundle = Bundle()
+        bundle.putString("category", category.title)
+        findNavController().navigate(R.id.action_homeFragment_to_categoryFragment, bundle)
     }
+
 
     private fun setAllCategories() {
         val categoryList = ArrayList<Category>()

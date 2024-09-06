@@ -12,7 +12,12 @@ import com.example.userblinkitclone.databinding.ItemViewProductBinding
 import com.example.userblinkitclone.models.Product
 
 
-class AdapterProduct() : RecyclerView.Adapter<AdapterProduct.ProductViewHolder>(), Filterable {
+class AdapterProduct(
+    val onAddButtonClicked: (Product, ItemViewProductBinding) -> Unit,
+    val onIncrementButtonClicked: (Product, ItemViewProductBinding) -> Unit,
+    val onDecrementButtonClicked: (Product, ItemViewProductBinding) -> Unit
+) :
+    RecyclerView.Adapter<AdapterProduct.ProductViewHolder>(), Filterable {
     class ProductViewHolder(val binding: ItemViewProductBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -58,6 +63,15 @@ class AdapterProduct() : RecyclerView.Adapter<AdapterProduct.ProductViewHolder>(
             val quantity = product.productQuantity.toString() + product.productUnit
             tvProductQuantity.text = quantity
             tvProductPrice.text = "₹" + product.productPrice
+            tvAdd.setOnClickListener {
+                onAddButtonClicked(product, this)
+            }
+            tvIncrementCount.setOnClickListener {
+                onIncrementButtonClicked(product, this)
+            }
+            tvDecrementCount.setOnClickListener {
+                onDecrementButtonClicked(product, this)
+            }
         }
 
         holder.itemView.setOnClickListener {
