@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.example.userblinkitclone.Utils
 import com.example.userblinkitclone.models.Users
 import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
@@ -13,6 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.TimeUnit
 
 class AuthViewModel : ViewModel() {
+
+    private val firebaseAuth = FirebaseAuth.getInstance()
+    private val firebaseDatabase = FirebaseDatabase.getInstance().reference
 
     private val _verificationId = MutableStateFlow<String?>(null)
 
@@ -26,9 +30,12 @@ class AuthViewModel : ViewModel() {
     val isACurrentUser = _isACurrentUser
 
     init {
-        Utils.getAuthInstance().currentUser?.let {
-            _isACurrentUser.value = true
-        }
+        checkIfUserIsLoggedIn()
+    }
+
+    private fun checkIfUserIsLoggedIn() {
+        val currentUser = firebaseAuth.currentUser
+        _isACurrentUser.value = currentUser != null
     }
 
 

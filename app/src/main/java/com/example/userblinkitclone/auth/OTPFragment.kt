@@ -60,6 +60,7 @@ class OTPFragment : Fragment() {
             }
             if (otp.length < editTexts.size) {
                 Utils.showToast(requireContext(), "Please enter right otp")
+                Utils.hideDialog()
             } else {
                 editTexts.forEach {
                     it.text?.clear(); it.clearFocus()
@@ -71,7 +72,7 @@ class OTPFragment : Fragment() {
 
     private fun verifyOtp(otp: String) {
         val user =
-            Users(uid = Utils.getCurrentUserId(), userPhoneNumber = userNumber, userAddress = null)
+            Users(null, userPhoneNumber = userNumber, userAddress = null)
 
         viewModel.signInWithPhoneAuthCredential(otp, userNumber, user)
 

@@ -13,6 +13,7 @@ object Utils {
 
     fun showDialog(context: Context, message: String) {
         val process = ProgressDialogBinding.inflate(LayoutInflater.from(context))
+        process.tvMessage.text = message
         dialog = AlertDialog.Builder(context).setView(process.root).setCancelable(false).create()
         dialog!!.show()
     }

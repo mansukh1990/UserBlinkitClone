@@ -3,9 +3,9 @@ package com.example.userblinkitclone.models
 data class Product(
     var productRandomId: String? = null,
     var productTitle: String? = null,
-    var productQuantity: Int? = null,
+    var productQuantity: String? = null,
     var productUnit: String? = null,
-    var productPrice: Int? = null,
+    var productPrice: String? = null,
     var productStock: Int? = null,
     var productCategory: String? = null,
     var productType: String? = null,

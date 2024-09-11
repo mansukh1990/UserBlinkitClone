@@ -42,7 +42,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    fun onCategoryIconClicked(category: Category){
+    private fun onCategoryIconClicked(category: Category){
         val bundle = Bundle()
         bundle.putString("category", category.title)
         findNavController().navigate(R.id.action_homeFragment_to_categoryFragment, bundle)

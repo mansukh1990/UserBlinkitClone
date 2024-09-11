@@ -12,11 +12,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.userblinkitclone.CartListener
+import com.example.userblinkitclone.NetworkManager
 import com.example.userblinkitclone.R
 import com.example.userblinkitclone.adapters.AdapterProduct
 import com.example.userblinkitclone.databinding.FragmentCategoryBinding
 import com.example.userblinkitclone.databinding.ItemViewProductBinding
 import com.example.userblinkitclone.models.Product
+import com.example.userblinkitclone.roomdb.CartProducts
 import com.example.userblinkitclone.viewmodels.UserViewModel
 import kotlinx.coroutines.launch
 
@@ -49,6 +51,25 @@ class CategoryFragment : Fragment() {
         fetchCategoryProduct()
         onSearchMenuClicked()
         onNavigationIConClicked()
+        // checkInternet()
+    }
+
+    private fun checkInternet() {
+        val networkManager = NetworkManager(requireContext())
+        networkManager.observe(viewLifecycleOwner) { hasInternet ->
+            if (hasInternet == true) {
+                binding.shimmerViewContainer.visibility = View.VISIBLE
+                binding.tvText.visibility = View.GONE
+                binding.rvProducts.visibility = View.VISIBLE
+                fetchCategoryProduct()
+            } else {
+                binding.shimmerViewContainer.visibility = View.GONE
+                binding.rvProducts.visibility = View.GONE
+                binding.tvText.visibility = View.VISIBLE
+                binding.tvText.text = "No Internet Connection"
+            }
+
+        }
     }
 
     private fun onNavigationIConClicked() {
@@ -92,7 +113,7 @@ class CategoryFragment : Fragment() {
                 binding.rvProducts.adapter = adapterProduct
                 adapterProduct.setProductList(it)
                 adapterProduct.differ.submitList(it)
-                adapterProduct.originalList = it
+                adapterProduct.originalList = it as ArrayList<Product>
 
                 binding.shimmerViewContainer.visibility = View.GONE
             }
@@ -122,6 +143,12 @@ class CategoryFragment : Fragment() {
 
         // step 2
 
+        product.itemCount = itemCount
+        lifecycleScope.launch {
+            cartListener?.savingCardItemCount(1)
+            saveProductInRoomDb(product)
+        }
+
     }
 
     private fun onIncrementButtonClicked(product: Product, productBinding: ItemViewProductBinding) {
@@ -131,6 +158,15 @@ class CategoryFragment : Fragment() {
 
         cartListener?.showCartLayout(1)
 
+
+        //step 2
+
+        product.itemCount = itemCountInc
+        lifecycleScope.launch {
+            cartListener?.savingCardItemCount(1)
+            saveProductInRoomDb(product)
+        }
+
     }
 
     private fun onDecrementButtonClicked(product: Product, productBinding: ItemViewProductBinding) {
@@ -138,9 +174,18 @@ class CategoryFragment : Fragment() {
         var itemCountDec = productBinding.tvProductCount.text.toString().toInt()
         itemCountDec--
 
+        product.itemCount = itemCountDec
+        lifecycleScope.launch {
+            cartListener?.savingCardItemCount(-1)
+            saveProductInRoomDb(product)
+        }
+
         if (itemCountDec > 0) {
             productBinding.tvProductCount.text = itemCountDec.toString()
         } else {
+            lifecycleScope.launch {
+                viewModel.deleteCartProduct(productId = product.productRandomId!!)
+            }
             productBinding.tvAdd.visibility = View.VISIBLE
             productBinding.llProductCount.visibility = View.GONE
             productBinding.tvProductCount.text = "0"
@@ -148,6 +193,27 @@ class CategoryFragment : Fragment() {
 
 
         cartListener?.showCartLayout(-1)
+
+        //step 2
+
+    }
+
+    private fun saveProductInRoomDb(product: Product) {
+
+        val cartProduct = CartProducts(
+            productId = product.productRandomId!!,
+            productTitle = product.productTitle,
+            productQuantity = product.productQuantity.toString() + product.productUnit.toString(),
+            productPrice = "₹" + "${product.productPrice}",
+            productCount = product.itemCount,
+            productStock = product.productStock,
+            productImage = product.productImageUris?.get(0)!!,
+            productCategory = product.productCategory,
+            adminUid = product.adminUid,
+        )
+        lifecycleScope.launch {
+            viewModel.insertCartProduct(cartProduct)
+        }
 
     }
 

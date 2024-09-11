@@ -1,5 +1,6 @@
 package com.example.userblinkitclone.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,9 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.userblinkitclone.CartListener
 import com.example.userblinkitclone.R
 import com.example.userblinkitclone.adapters.AdapterProduct
 import com.example.userblinkitclone.databinding.FragmentSearchBinding
+import com.example.userblinkitclone.databinding.ItemViewProductBinding
 import com.example.userblinkitclone.models.Product
 import com.example.userblinkitclone.viewmodels.UserViewModel
 import kotlinx.coroutines.launch
@@ -22,6 +25,7 @@ class SearchFragment : Fragment() {
     private lateinit var binding: FragmentSearchBinding
     private lateinit var adapterProduct: AdapterProduct
     private val viewModel: UserViewModel by viewModels()
+    private var cartListener: CartListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,18 +79,74 @@ class SearchFragment : Fragment() {
                     binding.rvProducts.visibility = View.VISIBLE
                     binding.tvText.visibility = View.GONE
                 }
-//                adapterProduct = AdapterProduct(
-//                    ::onAddButtonClicked,
-//                    ::onIncrementButtonClicked,
-//                    ::onDecrementButtonClicked
-//                )
+                adapterProduct = AdapterProduct(
+                    ::onAddButtonClicked,
+                    ::onIncrementButtonClicked,
+                    ::onDecrementButtonClicked
+                )
                 binding.rvProducts.adapter = adapterProduct
                 adapterProduct.setProductList(it)
                 adapterProduct.differ.submitList(it)
-                adapterProduct.originalList = it as ArrayList<Product>
+                adapterProduct.originalList = it
 
                 binding.shimmerViewContainer.visibility = View.GONE
             }
+        }
+    }
+
+    private fun onAddButtonClicked(product: Product, productBinding: ItemViewProductBinding) {
+        productBinding.tvAdd.visibility = View.GONE
+        productBinding.llProductCount.visibility = View.VISIBLE
+
+        //step 1
+
+        var itemCount = productBinding.tvProductCount.text.toString().toInt()
+        itemCount++
+        productBinding.tvProductCount.text = itemCount.toString()
+
+        cartListener?.showCartLayout(1)
+
+        // step 2
+
+        cartListener?.savingCardItemCount(1)
+    }
+
+    private fun onIncrementButtonClicked(product: Product, productBinding: ItemViewProductBinding) {
+        var itemCountInc = productBinding.tvProductCount.text.toString().toInt()
+        itemCountInc++
+        productBinding.tvProductCount.text = itemCountInc.toString()
+
+        cartListener?.showCartLayout(1)
+
+        cartListener?.savingCardItemCount(1)
+
+    }
+
+    private fun onDecrementButtonClicked(product: Product, productBinding: ItemViewProductBinding) {
+
+        var itemCountDec = productBinding.tvProductCount.text.toString().toInt()
+        itemCountDec--
+
+        if (itemCountDec > 0) {
+            productBinding.tvProductCount.text = itemCountDec.toString()
+        } else {
+            productBinding.tvAdd.visibility = View.VISIBLE
+            productBinding.llProductCount.visibility = View.GONE
+            productBinding.tvProductCount.text = "0"
+        }
+        cartListener?.showCartLayout(-1)
+
+        cartListener?.savingCardItemCount(-1)
+
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (context is CartListener) {
+            cartListener = context
+        } else {
+            throw ClassCastException("Please implement cart listener")
         }
     }
 }
